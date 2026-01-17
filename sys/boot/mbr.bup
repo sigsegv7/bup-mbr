@@ -1,5 +1,22 @@
+//
+// Copyright (c) 2026, Ian Moffett.
+// Provided under the BSD-3 clause.
+//
+
 @ [bits 16]
 @ [org 0x7C00]
+
+//
+// Disk address packet
+//
+struct bios_dap {
+    u8 size;
+    u8 zero;
+    u16 sector_count;
+    u16 buffer_off;
+    u16 buffer_seg;
+    u64 lba;
+}
 
 proc _start -> void
 {
@@ -12,13 +29,53 @@ proc _start -> void
     @ jmp 0x00:main
 }
 
+proc read_image -> void
+{
+    // Initialize the disk address packet
+    @ mov byte [dap.size], 0x10
+    @ mov byte [dap.zero], 0x00
+    @ mov word [dap.buffer_off], 0x8000
+    @ mov word [dap.buffer_seg], 0x0000
+    @ mov word [dap.lba], 0x0001
+
+    // Begin the read operation
+    @ mov si, dap.size
+    @ mov ah, 0x42
+    @ mov dl, byte [disk_num]
+    @ int 0x13
+    @ jc .fail
+    @ jmp .exit
+    @ .fail:
+    @     mov ax, 0xFE
+    @     out 0x64, ax
+    @     jmp .fail
+    @ .exit:
+}
+
 proc main -> void
 {
-    loop {
-        @ cli
-        @ hlt
-    }
+    @ mov byte [disk_num], dl
+    @ cli
+    @ cld
+    @ mov byte [dap.sector_count], 1
+
+    // Read the first sector
+    read_image();
+
+    @ mov ax, word [0x8002]
+    @ mov word [dap.sector_count], ax
+
+    // Read the whole image
+    read_image();
+
+    @ mov ax, 0x8000
+    @ add ax, word [0x8000]
+    @ jmp ax
 }
+
+// Globals
+u8 disk_num;
+struct bios_dap dap;
 
 @ times 510 - ($ - $$) db 0
 @ dw 0xAA55
