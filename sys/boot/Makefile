@@ -1,5 +1,5 @@
 .PHONY: all
-all: artifacts mbr image
+all: artifacts image mbr
 
 .PHONY: mbr
 mbr:
