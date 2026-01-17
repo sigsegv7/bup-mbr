@@ -1,0 +1,24 @@
+@ [bits 16]
+@ [org 0x7C00]
+
+proc _start -> void
+{
+    @ xor ax, ax
+    @ mov ds, ax
+    @ mov es, ax
+    @ mov gs, ax
+    @ mov ss, ax
+    @ mov fs, ax
+    @ jmp 0x00:main
+}
+
+proc main -> void
+{
+    loop {
+        @ cli
+        @ hlt
+    }
+}
+
+@ times 510 - ($ - $$) db 0
+@ dw 0xAA55

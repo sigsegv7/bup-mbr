@@ -1,0 +1,10 @@
+@ [bits 16]
+@ [org 0x8000]
+
+proc _start -> void
+{
+    loop {
+        @ cli
+        @ hlt
+    }
+}
