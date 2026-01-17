@@ -39,7 +39,7 @@ proc read_image -> void
     @ mov word [dap.lba], 0x0001
 
     // Begin the read operation
-    @ mov si, dap.size
+    @ mov si, dap
     @ mov ah, 0x42
     @ mov dl, byte [disk_num]
     @ int 0x13
